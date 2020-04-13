@@ -1,0 +1,27 @@
+---
+- name: install and start appache
+  hosts: web
+  remote_user: ansible
+  become: yes
+
+  tasks:
+  - name: install epel repo
+    yum: name=epel-release state=present   
+
+  - name: install python binding for selinux
+    yum: name={{item}} state=present
+    with_items:
+    - libselinux-python
+    - libsemanage-python
+
+    - name: test to se if selinux is running 
+      command: getenforce
+      register: sestatus
+      changed_when: false
+
+    - name: install apache
+      yum: name=httpd state=present
+
+    - name: start appache
+      service: name=httpd state=started enabled=yes
+
